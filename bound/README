@@ -1,0 +1,24 @@
+Bound Event(s) Plugin
+
+version 1.0
+requires: jQuery v1.3.2
+author: Kevan Davis
+Copyright (c) 2009, Gilt Groupe
+
+Distributed under the terms of the GNU General Public License
+http://www.gnu.org/licenses/gpl-3.0.html
+
+Description :
+
+Returns an array of events bound to an element
+If a type is passed in, returns only that type.
+
+CSS Pseudo Selector :bound(eventType) returns elements that have events of a certain type (or types)
+
+Also supports namespaced events, and live events
+
+Usage :
+$('#blah').bound('click') -- returns all functions bound to the click event on #blah
+$('#blah').bound() -- returns all functions bound to any event on #blah
+$('.blah').bound('.test') -- returns all functions bound to the test namespace on the first element with class blah
+$('.blah:bound(click.test)') -- returns all elements with class blah that have a click handler in namespace test

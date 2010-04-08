@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>isEmpty Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "isempty", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("bound events plugin", function () {
+              it("should return false if the argument is a non-zero length string", function () {
+                expect($.isEmpty("a")).to(equal, false);
+              });
+              it("should return false if the argument is a non-zero length array", function () {
+                expect($.isEmpty(["a"])).to(equal, false);
+              });
+              it("should return false if the argument is a hash with at least 1 property", function () {
+                expect($.isEmpty({a: 1})).to(equal, false);
+              });
+              it("should return false if the argument is an object with a length property with value greater than 0", function () {
+                expect($.isEmpty({length: 1})).to(equal, false);
+              });
+              it("should return false if the argument is an object with a size method with return value greater than 0", function () {
+                expect($.isEmpty({size: function () {
+                  return 1;
+                }})).to(equal, false);
+              });
+              it("should return false if the argument is a primitive data type other than a string", function () {
+                expect($.isEmpty(1)).to(equal, false);
+              });
+              it("should return true if the argument is null", function () {
+                expect($.isEmpty()).to(equal, true);
+              });
+              it("should return true if the argument is a zero length string", function () {
+                expect($.isEmpty("")).to(equal, true);
+              });
+              it("should return true if the argument is a zero length array", function () {
+                expect($.isEmpty([])).to(equal, true);
+              });
+              it("should return true if the argument is a hash with no properties", function () {
+                expect($.isEmpty({})).to(equal, true);
+              });
+              it("should return true if the argument is an object with a length property with value 0", function () {
+                expect($.isEmpty({length: 0})).to(equal, true);
+              });
+              it("should return true if the argument is an object with a size method with return value 0", function () {
+                expect($.isEmpty({size: function () {
+                  return 0;
+                }})).to(equal, true);
+              });
+
+            });
+          }).appendTo("head");
+      });
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

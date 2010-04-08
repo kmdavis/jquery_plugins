@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Unique Selector Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "bound", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("bound events plugin", function () {
+              before(function () {
+
+              });
+
+            });
+          }).appendTo("head");
+      });
+    </script>
+    <script type="text/javascript">
+      $("<script type='text/javascript' src='" +
+          (/[\?\&]prod(\&|$)/.test(document.location.search) ?
+          "../release/jquery.gilt.unique-selector.1.0.min.js" :
+          "../src/unique-selector.js")
+        + "'/>").appendTo("head");
+      $(function() {
+        var testCount = 0,
+          failures = [], i,
+          test = function(func, expected, name) {
+            testCount += 1;
+            try {
+              if (expected !== func()) {
+                failures.push(name + " returned " + func() + " (expected " + expected + ")");
+              }
+            } catch(error) {
+              failures.push(name + " failed");
+            }
+          };
+        test(function() { return $("#test").getUniqueSelector(); }, "#test", "id");
+        test(function() { return $(".unique").getUniqueSelector(); }, "div.unique", "unique class");
+        test(function() { return $(".not_unique2:first").getUniqueSelector(); }, "span.not_unique1.not_unique2", "non-unique class");
+        test(function() { return $("hr").getUniqueSelector(); }, "hr", "unique tag");
+        test(function() { return $("body > div > div").getUniqueSelector(); }, "body>div:eq(2)>div", "worst case");
+
+        $("#passed").text(testCount - failures.length);
+        $("#total").text(testCount);
+        if (0 === failures.length) {
+          $("#result").css({color: "green"});
+        } else {
+          $("#result").css({color: "red"});
+        }
+        for (i = 0; i < failures.length; i += 1) {
+          $("#list").append("<span>" + failures[i] + "</span><br/>");
+        }
+        
+        $("hr").remove();
+      });
+    </script>
+  </head>
+  <body>
+    <div id="test"></div>
+    <div class="unique"></div>
+    <span class="not_unique1"></span>
+    <span class="not_unique1 not_unique2"></span>
+    <span class="not_unique2"></span>
+    <div>
+      <hr/>
+      <a></a>
+      <a href=""></a>
+      <div>
+        <div>
+          <span></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="result"><span id="passed"></span> tests passed out of <span id="total"></span> tests.</div>
+    <br/>
+    <div id="list"></div>
+  </body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>GT Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "gt", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("bound events plugin", function () {
+              before(function () {
+                $.gt.load({
+                  "simple test": "fail",
+                  "test template": "hello {name}",
+                  "another test" : "{0} + {1} = {2}",
+                  "unused translation": "hi",
+                  "total failure": ""
+                });
+                $.gt.load({
+                  "simple test": "pass"
+                });
+                $.gt.logMissingTranslations();
+                $.gt.logUsedTranslations();
+              });
+
+              it("ajax test", function () {
+                $.gt.load("en-US.json", function() {
+                  expect($.gt("ajax test")).to(equal, "pass");
+                });
+              });
+              it("simple test", function () {
+                expect($.gt("simple test")).to(equal, "pass");
+              });
+              it("template test", function () {
+                expect($.gt("test template", {name: "world"})).to(equal, "hello world");
+              });
+              it("template test 2", function () {
+                expect($.gt("another test", 3, 2, 5)).to(equal, "3 + 2 = 5");
+              });
+              it("cache miss test", function () {
+                expect($.gt("cache miss")).to(equal, "cache miss");
+              });
+              it("$.fn test", function () {
+                $("#test1").gt();
+                expect($("#test1").html()).to(equal, "");
+              });
+              it("missing translations logging test", function () {
+                expect($.gt.missingTranslations().hasOwnProperty("cache miss")).to(equal, true);
+              });
+              it("used translations logging test", function () {
+                expect($.gt.usedTranslations().hasOwnProperty("simple test")).to(equal, true);
+              });
+              it("unused translations logging test", function () {
+                expect($.gt.unusedTranslations().length).to(equal, 1);
+              });
+            });
+          }).appendTo("head");
+      });
+    </script>
+  </head>
+  <body>
+    <div id="test1">total failure</div>
+  </body>
+</html>

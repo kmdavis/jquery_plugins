@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Formatter Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/caret.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "formatter", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("formatter plugin", function () {
+              it("visa / chaining / class test", function () {
+                expect($("#cc_full").format().val()).to(equal, "4111 1111 1111 1111");
+              });
+              it("partial filled number test", function () {
+                expect($("#cc_partial").format({fillEmptyDigits:true}).val()).to(equal, "4111 1111 1111 ****");
+              });
+              it("partial number test", function () {
+                expect($("#cc_partial").format().val()).to(equal, "4111 1111 1111");
+              });
+              it("amex test", function () {
+                expect($("#cc_amex").format().val()).to(equal, "3411 111111 11111");
+              });
+              it("strip extra chars test", function () {
+                expect($("#cc_strip").format().val()).to(equal, "4111 1111 1111 1111");
+              });
+              it("data attr test", function () {
+                expect($("#cc_data").format().val()).to(equal, "4111 1111 1111 1111");
+              });
+              it("explicit formatter test", function () {
+                expect($("#cc_full").format($.formatter.creditcard).val()).to(equal, "4111 1111 1111 1111");
+              });
+
+              it("batch test part 1", function () {
+                $("#cc_batch1, #cc_batch2").format();
+                expect($("#cc_batch1").val()).to(equal, "4111 1111 1111 1111");
+              });
+              it("batch test part 2", function () {
+                expect($("#cc_batch2").val()).to(equal, "4111 1111 1111 1111");
+              });
+              it("div (html) test", function () {
+                expect($("#cc_div").format().html()).to(equal, "4111 1111 1111 1111");
+              });
+
+              it("full phone number test", function () {
+                expect($("#phone_full").format().val()).to(equal, "1 (234) 567-8901 x234");
+              });
+              it("no 1 test", function () {
+                expect($("#phone_no_1").format().val()).to(equal, "(234) 567-8901 x234");
+              });
+              it("plus test", function () {
+                expect($("#phone_plus").format().val()).to(equal, "+1 (234) 567-8901 x234");
+              });
+              it("no ext test", function () {
+                expect($("#phone_no_ext").format().val()).to(equal, "1 (234) 567-8901");
+              });
+              it("international test", function () {
+                expect($("#phone_int").format().val()).to(equal, "+81-23-4567-8901");
+              });
+              it("partial filled test", function () {
+                expect($("#phone_partial").format({fillEmptyDigits:true}).val()).to(equal, "(234) 567-****");
+              });
+              it("partial test", function () {
+                expect($("#phone_partial").format().val()).to(equal, "(234) 567-");
+              });
+
+              it("no comma test", function () {
+                expect($("#comma_none").format().val()).to(equal, "12");
+              });
+              it("left comma test", function () {
+                expect($("#comma_left").format().val()).to(equal, "1,234");
+              });
+              it("no right comma test", function () {
+                expect($("#comma_right").format().val()).to(equal, "1.2345");
+              });
+              it("right comma test", function () {
+                expect($("#comma_right").format({insertCommasOnRightSide:true}).val()).to(equal, "1.234,5");
+              });
+              it("both comma test", function () {
+                expect($("#comma_both").format({insertCommasOnRightSide:true}).val()).to(equal, "1,234.567,8");
+              });
+
+              // TODO: currency
+            });
+          }).appendTo("head");
+      });
+    </script>
+  </head>
+  <body>
+    <div id="auto-tests">
+      <input id="cc_full" class="creditcard" type="text" value="4111111111111111"/>
+      <input id="cc_partial" class="creditcard" type="text" value="411111111111"/>
+      <input id="cc_amex" class="creditcard" type="text" value="341111111111111"/>
+      <input id="cc_strip" class="creditcard" type="text" value="4111-1111.1111 / 1111"/>
+      <input id="cc_data" data-formatter="creditcard" type="text" value="4111111111111111"/>
+      <input id="cc_explicit" type="text" value="4111111111111111"/>
+      <input id="cc_batch1" class="creditcard" type="text" value="4111111111111111"/>
+      <input id="cc_batch2" class="creditcard" type="text" value="4111111111111111"/>
+      <div id="cc_div" class="creditcard">4111111111111111</div>
+
+      <input id="phone_full" class="phone" type="text" value="12345678901234"/>
+      <input id="phone_no_1" class="phone" type="text" value="2345678901234"/>
+      <input id="phone_plus" class="phone" type="text" value="+12345678901234"/>
+      <input id="phone_no_ext" class="phone" type="text" value="12345678901"/>
+      <input id="phone_int" class="phone" type="text" value="+812345678901"/>
+      <input id="phone_partial" class="phone" type="text" value="234567"/>
+
+      <input id="comma_none" class="commas" type="text" value="12"/>
+      <input id="comma_left" class="commas" type="text" value="1234"/>
+      <input id="comma_right" class="commas" type="text" value="1.2345"/>
+      <input id="comma_both" class="commas" type="text" value="1234.5678"/>
+    </div>
+
+    <div id="manual-tests" class="noremove">
+      <span>Please test these "format as you type" input boxes:</span><br/>
+      Credit Card: <input class="creditcard"/><br/>
+      Phone: <input class="phone"/><br/>
+      Commas: <input class="commas"/><br/>
+    </div>
+  </body>
+</html>

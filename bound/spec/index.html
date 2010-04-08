@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Bound Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "bound", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("bound events plugin", function () {
+              before(function () {
+                $("#test1").bind("click", function() {});
+                $("#test1").bind("click.test", function() {});
+                $("#test1").bind("change.test", function() {});
+                $("#test1").bind("click", function() {});
+                $("#test2").bind("click", function() {});
+                $("#test2").bind("focus.test", function() {});
+                $("#test3").bind("solo.solo", function() {});
+                $("div").live("mouseover", function() {});
+                $("div").live("mouseover.foo", function() {});
+              });
+
+              describe("utility function", function () {
+                it("should return an array of events", function () {
+                  expect($("#test1").bound("click")).to(be_a, Array);
+                  expect($("#test1").bound("click")[0].handler).to(be_a, "function");
+                  expect($("#test1").bound("click").length).to(equal, 3);
+                });
+                it("should filter by namespace and event", function () {
+                  expect($("#test1").bound("click.test").length).to(equal, 1);
+                });
+                it("should filter by event only", function () {
+                  expect($("#test2").bound("focus").length).to(equal, 1);
+                });
+                it("should filter by namespace only", function () {
+                  expect($("#test1").bound(".test").length).to(equal, 2);
+                });
+                it("should filter by namespace only (2nd test)", function () {
+                  expect($("#test3").bound(".solo").length).to(equal, 1);
+                });
+                it("should find live events", function () {
+                  expect($("#test3").bound("mouseover").length).to(equal, 2);
+                });
+                it("should filter live events by namespace", function () {
+                  expect($("#test1").bound(".foo").length).to(equal, 1);
+                });
+                it("should return all bound events", function () {
+                  expect($("#test1").bound().length).to(equal, 6);
+                });
+              });
+
+              describe("selector", function () {
+                it("should select elements", function () {
+                  expect($("div:bound(click)")).to(be_a, jQuery);
+                  expect($("div:bound(click)").length).to(equal, 2);
+                });
+                it("should select elements by namespace and event", function () {
+                  expect($("div:bound(click.test)").length).to(equal, 1);
+                });
+                it("should select elements by event only", function () {
+                  expect($("div:bound(focus)").length).to(equal, 1);
+                });
+                it("should select elements with any of several events", function () {
+                  expect($("div:bound(focus, change)").length).to(equal, 2);
+                });
+                it("should select elements by namespace only", function () {
+                  expect($("div:bound(.test)").length).to(equal, 2);
+                });
+                it("should select elements with live events", function () {
+                  expect($("div:bound(mouseover)").length).to(equal, $("div").length);
+                });
+                it("should select all elements with bound events", function () {
+                  expect($("div:bound").length).to(equal, $("div").length);
+                });
+              });
+            });
+          }).appendTo("head");
+      });
+    </script>
+  </head>
+  <body>
+    <div id="test1"></div>
+    <div id="test2"></div>
+    <div id="test3"></div>
+  </body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Viewport Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "viewport", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("bound events plugin", function () {
+              it("below element (direct)", function () {
+                expect($.below("#pos4", "#pos1")).to(equal, true);
+              });
+              it("above element (direct)", function () {
+                expect($.above("#pos1", "#pos4")).to(equal, true);
+              });
+              it("right of element (direct)", function () {
+                expect($.rightof("#pos2", "#pos1")).to(equal, true);
+              });
+              it("left of element (direct)", function () {
+                expect($.leftof("#pos1", "#pos2")).to(equal, true);
+              });
+              it("within element (direct)", function () {
+                expect($.within("#within", "#pos1")).to(equal, true);
+              });
+
+              it("below element (fn)", function () {
+                expect($("#pos4").below("#pos1")).to(equal, true);
+              });
+              it("above element (fn)", function () {
+                expect($("#pos1").above("#pos4")).to(equal, true);
+              });
+              it("right of element (fn)", function () {
+                expect($("#pos2").rightof("#pos1")).to(equal, true);
+              });
+              it("left of element (fn)", function () {
+                expect($("#pos1").leftof("#pos2")).to(equal, true);
+              });
+              it("within element (fn)", function () {
+                expect($("#within").within("#pos1")).to(equal, true);
+              });
+
+              it("below element (fn) negative assertion", function () {
+                expect($("#pos1").below("#pos4")).to(equal, false);
+              });
+              it("above element (fn) negative assertion", function () {
+                expect($("#pos4").above("#pos1")).to(equal, false);
+              });
+              it("right of element (fn) negative assertion", function () {
+                expect($("#pos1").rightof("#pos2")).to(equal, false);
+              });
+              it("left of element (fn) negative assertion", function () {
+                expect($("#pos2").leftof("#pos1")).to(equal, false);
+              });
+              it("within element (fn) negative assertion", function () {
+                expect($("#within").within("#pos2")).to(equal, false);
+              });
+
+              it("below the fold (direct)", function () {
+                expect($.belowthefold("#below")).to(equal, true);
+              });
+              it("above the top (direct)", function () {
+                expect($.abovethetop("#above")).to(equal, true);
+              });
+              it("right of screen (direct)", function () {
+                expect($.rightofscreen("#right")).to(equal, true);
+              });
+              it("left of screen (direct)", function () {
+                expect($.leftofscreen("#left")).to(equal, true);
+              });
+              it("in viewport (direct)", function () {
+                expect($.inviewport("#pos1")).to(equal, true);
+              });
+
+              it("below the fold (fn)", function () {
+                expect($("#below").belowthefold()).to(equal, true);
+              });
+              it("above the top (fn)", function () {
+                expect($("#above").abovethetop()).to(equal, true);
+              });
+              it("right of screen (fn)", function () {
+                expect($("#right").rightofscreen()).to(equal, true);
+              });
+              it("left of screen (fn)", function () {
+                expect($("#left").leftofscreen()).to(equal, true);
+              });
+              it("in viewport (fn)", function () {
+                expect($("#pos1").inviewport()).to(equal, true);
+              });
+
+              it("below the fold (fn) negative assertion", function () {
+                expect($("#above").belowthefold()).to(equal, false);
+              });
+              it("above the top (fn) negative assertion", function () {
+                expect($("#below").abovethetop()).to(equal, false);
+              });
+              it("right of screen (fn) negative assertion", function () {
+                expect($("#left").rightofscreen()).to(equal, false);
+              });
+              it("left of screen (fn) negative assertion", function () {
+                expect($("#right").leftofscreen()).to(equal, false);
+              });
+              it("in viewport (fn) negative assertion", function () {
+                expect($("#above").inviewport()).to(equal, false);
+              });
+
+              it("below the fold (selector)", function () {
+                expect($("#test_area :below-the-fold").attr("id")).to(equal, "below");
+              });
+              it("above the top (selector)", function () {
+                expect($("#test_area :above-the-top").attr("id")).to(equal, "above");
+              });
+              it("right of screen (selector)", function () {
+                expect($("#test_area :right-of-screen").attr("id")).to(equal, "right");
+              });
+              it("left of screen (selector)", function () {
+                expect($("#test_area :left-of-screen").attr("id")).to(equal, "left");
+              });
+              it("in viewport (selector)", function () {
+                expect($("#test_area :in-viewport").length).to(equal, 10);
+              });
+
+              it("below (selector)", function () {
+                expect($("#test_area :below(#pos5)").length).to(equal, 4);
+              });
+              it("above (selector)", function () {
+                expect($("#test_area :above(#pos5)").length).to(equal, 7);
+              });
+              it("right-of (selector)", function () {
+                expect($("#test_area :right-of(#pos5)").length).to(equal, 4);
+              });
+              it("left-of (selector)", function () {
+                expect($("#test_area :left-of(#pos5)").length).to(equal, 7);
+              });
+              it("with-in (selector)", function () {
+                expect($("#test_area :with-in(#pos1)").length).to(equal, 1);
+              });
+            });
+          }).appendTo("head");
+      });
+    </script>
+  </head>
+  <body>
+    <div id="test_area">
+      <div id="pos1" style="float: left; width: 30%; height: 40px;"></div>
+      <div id="within" style="width: 1px; height: 1px; position: absolute; top: 10px; left: 10px;"></div>
+      <div id="pos2" style="float: left; width: 30%; height: 40px;"></div>
+      <div id="pos3" style="float: left; width: 30%; height: 40px;"></div>
+      <div id="pos4" style="float: left; width: 30%; height: 40px;"></div>
+      <div id="pos5" style="float: left; width: 30%; height: 40px;"></div>
+      <div id="pos6" style="float: left; width: 30%; height: 40px;"></div>
+      <div id="pos7" style="float: left; width: 30%; height: 40px;"></div>
+      <div id="pos8" style="float: left; width: 30%; height: 40px;"></div>
+      <div id="pos9" style="float: left; width: 30%; height: 40px;"></div>
+
+      <div id="above" style="width: 40px; height: 40px; position: absolute; top: -100px"></div>
+      <div id="below" style="width: 40px; height: 40px; position: absolute; bottom: -100px"></div>
+      <div id="right" style="width: 40px; height: 40px; position: absolute; right: -100px"></div>
+      <div id="left" style="width: 40px; height: 40px; position: absolute; left: -100px"></div>
+    </div>
+  </body>
+</html>

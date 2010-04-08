@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Line Boundary Selectors Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "line-boundary-selectors", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("line boundary selectors plugin", function () {
+              describe("utility functions", function () {
+                describe("end of line", function () {
+                  it("should find the end of the line", function () {
+                    expect($("#test1start").endOfLine().attr("id")).to(equal, "test1end");
+                  });
+                  it("should find the end of the line even if it's not a full line", function () {
+                    expect($("#test2start").endOfLine().attr("id")).to(equal, "test2end");
+                  });
+                  it("should find the end of the line even if it's complex", function () {
+                    expect($("#test3start").endOfLine().attr("id")).to(equal, "test3end");
+                  });
+                });
+  
+                describe("start of line", function () {
+                  it("should find the start of the line", function () {
+                    expect($("#test4start").startOfLine().attr("id")).to(equal, "test4end");
+                  });
+                  it("should find the start of the line even if it's not a full line", function () {
+                    expect($("#test5start").startOfLine().attr("id")).to(equal, "test5end");
+                  });
+                  it("should find the start of the line even if it's complex", function () {
+                    expect($("#test6start").startOfLine().attr("id")).to(equal, "test6end");
+                  });
+                });
+              });
+              
+              xdescribe("selectors", function () {
+                describe("end of line", function () {
+                  it("should find the end of the line", function () {
+                    expect($("#test1start:end-of-line").attr("id")).to(equal, "test1end");
+                  });
+                  it("should find the end of the line even if it's not a full line", function () {
+                    expect($("#test2start:end-of-line").attr("id")).to(equal, "test2end");
+                  });
+                  it("should find the end of the line even if it's complex", function () {
+                    expect($("#test3start:end-of-line").attr("id")).to(equal, "test3end");
+                  });
+                });
+  
+                describe("start of line", function () {
+                  it("should find the start of the line", function () {
+                    expect($("#test4start:start-of-line").attr("id")).to(equal, "test4end");
+                  });
+                  it("should find the start of the line even if it's not a full line", function () {
+                    expect($("#test5start:start-of-line").attr("id")).to(equal, "test5end");
+                  });
+                  it("should find the start of the line even if it's complex", function () {
+                    expect($("#test6start:start-of-line").attr("id")).to(equal, "test6end");
+                  });
+                });
+              })
+            });
+          }).appendTo("head");
+      });
+    </script>
+  </head>
+  <body>
+    <div>
+      <div id="test1start" style="width: 30%; height: 20px; float: left;"></div>
+      <div id="test1end" style="width: 30%; height: 20px; float: left;"></div>
+    </div>
+    <div>
+      <div id="test2start" style="width: 30%; height: 20px; float: left;"></div>
+      <div style="width: 30%; height: 20px; float: left;"></div>
+      <div id="test2end" style="width: 30%; height: 20px; float: left;"></div>
+      <div style="width: 30%; height: 20px; float: left;"></div>
+    </div>
+    <div>
+      <div id="test3start" style="width: 30%; height: 20px; float: left;"></div>
+      <div style="width: 30%; height: 20px; float: left;"></div>
+      <div style="width: 30%; height: 10px; float: left;"></div>
+      <div id="test3end" style="width: 30%; height: 10px; float: left;"></div>
+      <div style="width: 30%; height: 20px; float: left;"></div>
+    </div>
+    <div>
+      <div id="test4end" style="width: 30%; height: 20px; float: left;"></div>
+      <div id="test4start" style="width: 30%; height: 20px; float: left;"></div>
+    </div>
+    <div>
+      <div style="width: 30%; height: 20px; float: left;"></div>
+      <div style="width: 30%; height: 20px; float: left;"></div>
+      <div style="width: 30%; height: 20px; float: left;"></div>
+      <div id="test5end" style="width: 30%; height: 20px; float: left;"></div>
+      <div style="width: 30%; height: 20px; float: left;"></div>
+      <div id="test5start" style="width: 30%; height: 20px; float: left;"></div>
+    </div>
+    <div>
+      <div style="width: 90%; height: 20px; float: left;"></div>
+      <div id="test6end" style="width: 30%; height: 20px; float: left;"></div>
+      <div style="width: 30%; height: 20px; float: left;"></div>
+      <div style="width: 30%; height: 10px; float: left;"></div>
+      <div id="test6start" style="width: 30%; height: 10px; float: left;"></div>
+    </div>
+  </body>
+</html>

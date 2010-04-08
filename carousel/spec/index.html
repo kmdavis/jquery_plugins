@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Carousel Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "carousel", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("Carousel plugin", function () {
+              before(function () {
+                $.ui.carousel.defaults.autoRotateInterval = 2000;
+              });
+
+              describe("initialization", function () {
+                it("should return a jquery object", function () {
+                  expect($("#carousel1").carousel()).to(be_a, jQuery);
+                });
+                it("should scaffold a carousel object", function () {
+                  expect($("#carousel1 > .ui-icon").length).to(equal, 2);
+                  expect($("#carousel1 div.ui-carousel-footer").length).to(equal, 1);
+                  expect($("#carousel1 .ui-carousel-footer-group span").length).to(equal, 5);
+                });
+                it("should attach the correct css classes to dom objects", function () {
+                  expect($("#carousel1").hasClass("ui-carousel")).to(equal, true);
+                  expect($("#carousel1 ul.slides li:first").hasClass("ui-carousel-state-0")).to(equal, true);
+                  expect($("#carousel1 span").not(".ui-icon").length).to(equal, 1);
+                });
+                it("should use provided templates", function () {
+                  $("#carousel2").carousel({
+                    loop: false,
+                    showFooter: false,
+                    transitions: [[]],
+                    templates: {
+                      leftArrowSmall: "<span class='ui-icon ui-icon-arrow-1-w'>&lt;</span>",
+                      rightArrowSmall: "<span class='ui-icon ui-icon-arrow-1-e'>&gt;</span>",
+                      leftArrow: "<button class='ui-icon ui-icon-arrowthick-1-w'>&lt;</button>",
+                      rightArrow: "<button class='ui-icon ui-icon-arrowthick-1-e'>&gt;</button>",
+                      number: "<span class='ui-icon'></span>",
+                      footer: "<div><span></span></div>"
+                    }
+                  });
+                  expect($("#carousel2 button").length).to(equal, 2);
+                });
+                it("should create a footer only if specified", function () {
+                  expect($("#carousel2 div.ui-carousel-footer").length).to(equal, 0);
+                });
+                it("should center the footer", function () {
+                  expect($("#carousel1 span.ui-carousel-footer-group").width()).to(equal, 212);
+                  expect($("#carousel1 span.ui-carousel-footer-group").css("left")).to(equal, "94px");
+                });
+              });
+
+              describe("transitions", function () {
+                it("by default, it should use a slide animation when changing slides", function () {
+                  setTimeout(function () {
+                    expect($("#carousel1 :animated").length).to(equal, 2);
+                  }, $.ui.carousel.defaults.autoRotateInterval);
+                  // NOTE: this MUST be the first asynchronous test, otherwise, we'd have to sync before testing
+                  // there is a short window during which we can test for this
+                });
+                it("should use whatever animation is specified", function () {
+                  expect($("#carousel2 :animated").length).to(equal, 0); // in this case, no animation
+                });
+                it("should loop", function () {
+                  setTimeout(function () {
+                    expect($("#carousel1 li.ui-carousel-state-0:visible").length).to(equal, 1);
+                  }, 2 * $.ui.carousel.defaults.autoRotateInterval);
+                });
+                it("should not loop, if the loop option is disabled", function () {
+                  expect($("#carousel2 li.ui-carousel-state-0:visible").length).to(equal, 0);
+                });
+              });
+
+              describe("interations", function () {
+                it("should goto the next slide if you click either right arrow", function () {
+                  $("#carousel1 .ui-icon-arrowthick-1-e").click();
+                  expect($("#carousel1").data("carousel").options.state).to(equal, 1);
+                });
+                it("should goto the previous slide if you click either left arrow", function () {
+                  $("#carousel1 .ui-icon-arrowthick-1-w").click();
+                  expect($("#carousel1").data("carousel").options.state).to(equal, 0);
+                });
+                it("should goto a specific slide if you click on a numbered icon", function () {
+                  $("#carousel1 .ui-icon-numeral-3").click();
+                  expect($("#carousel1").data("carousel").options.state).to(equal, 2);
+                });
+                it("should automatically goto the next slide after a delay", function () {
+                  $("#carousel1 .ui-icon-arrowthick-1-e").click();
+                  setTimeout(function () {
+                    expect($("#carousel1").data("carousel").options.state).to(equal, 1);
+                  }, $.ui.carousel.defaults.autoRotateInterval);
+                });
+                it("should have a keyhandler");
+              });
+
+              describe("api", function () {
+                it('should expose a "frame" function which will goto a slide in a direction', function () {
+                  $("#carousel1").carousel("frame", 2);
+                  expect($("#carousel1").data("carousel").options.state).to(equal, 2);
+                });
+                it('should expose a "rotate" function which will goto the next slide in a direction', function () {
+                  $("#carousel1").carousel("rotate", "left");
+                  expect($("#carousel1").data("carousel").options.state).to(equal, 1);
+                });
+                it('should expose a "autorotate"" function which will periodically rotate in a direction', function () {
+                  //$("#carousel1").carousel("autorotate", "stop");
+                  setTimeout(function () {
+                    expect($("#carousel1").data("carousel").options.state).to(equal, 1);
+                  }, $.ui.carousel.defaults.autoRotateInterval);
+                });
+              });
+
+              describe("events", function () {
+                
+              });
+            });
+          }).appendTo("head");
+      });
+    </script>
+    <style type="text/css">
+      .ui-carousel, .ui-carousel ul {
+        height: 320px;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        width: 400px;
+      }
+      .ui-carousel ul li {
+        background-color: #888;
+        height: 100%;
+        list-style: none;
+        position: absolute;
+        width: 100%;
+      }
+      .ui-carousel ul li.ui-carousel-state-1 { background-color: #999; }
+      .ui-carousel ul li.ui-carousel-state-2 { background-color: #aaa; }
+      .ui-carousel ul li.ui-carousel-state-3 { background-color: #bbb; }
+      .ui-icon {
+        background: url(http://www.gilt.com/images/default/buttons/app-widget-buttons-sprite.png) no-repeat;
+        color: transparent;
+        cursor: pointer;
+        font-size: 0;
+      }
+      .ui-icon-arrowthick-1-w, .ui-icon-arrowthick-1-e,
+      .ui-icon-arrow-1-w, .ui-icon-arrow-1-e {
+        height: 43px;
+        position: absolute;
+        top: 150px;
+        width: 43px;
+      }
+      .ui-icon-arrow-1-w, .ui-icon-arrow-1-e {
+        top: 0;
+      }
+      .ui-icon-arrowthick-1-w, .ui-icon-arrow-1-w {
+        background-position: 0 -75px;
+        left: 6px;
+      }
+      .ui-icon-arrowthick-1-w-hover, .ui-icon-arrow-1-w-hover {
+        background-position: -44px -75px;
+      }
+      .ui-icon-arrowthick-1-e, .ui-icon-arrow-1-e {
+        background-position: -129px -75px;
+        right: 6px;
+      }
+      .ui-icon-arrowthick-1-e-hover, .ui-icon-arrow-1-e-hover {
+        background-position: -86px -75px;
+      }
+      .ui-carousel-footer {
+        bottom: 0;
+        position: absolute;
+        width: 100%;
+      }
+      .ui-carousel-footer-group {
+        bottom: 0;
+        position: absolute;
+      }
+      .ui-carousel-footer .ui-icon {
+        float: left;
+        position: static;
+        left: auto;
+        right: auto;
+      }
+      .ui-icon-numeral-1, .ui-icon-numeral-2, .ui-icon-numeral-3, .ui-icon-numeral-4 {
+        background: #000;
+        color: #fff;
+        display: block;
+        font-size: 20px;
+        height: 22px;
+        padding: 10px;
+        text-align: center;
+        width: 22px;
+      }
+      .ui-state-active {
+        background: #444;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="carousel1" class="noremove">
+      <ul class="slides">
+        <li>Slide 1</li>
+        <li>Slide 2</li>
+        <li>Slide 3</li>
+      </ul>
+    </div>
+    <div id="carousel2">
+      <ul class="slides">
+        <li>Slide 1</li>
+        <li>Slide 2</li>
+        <li>Slide 3</li>
+      </ul>
+    </div>
+  </body>
+</html>

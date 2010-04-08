@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Capitalize Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "capitalize", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("Capitalize plugin", function () {
+              it("should capitalize a sentence", function () {
+                expect($("#simple").capitalize().val()).to(equal, "That Is a Test, Over");
+              });
+              it("should not always capitalize first word", function () {
+                expect($("#simple").capitalize({capitalizeFirstWord:false}).val()).to(equal, "that Is a Test, Over");
+              });
+              it("should not always capitalize last word", function () {
+                expect($("#simple").capitalize({capitalizeLastWord:false}).val()).to(equal, "That Is a Test, over");
+              });
+              it("should capitalize html", function () {
+                expect($("#html").capitalize().html()).to(equal, "This Is a Test");
+              });
+              it("should capitalize abbreviations", function () {
+                expect($("#abbr").capitalize().val()).to(equal, "This Is a P.O.B. Test");
+              });
+              it("should not capitalize abbreviations", function () {
+                expect($("#abbr").capitalize({capitalizeAbbreviations:false}).val()).to(equal, "This Is a p.o.b. Test");
+              });
+              it("should capitalize all-cap words", function () {
+                expect($("#allcap").capitalize({wordsToAllCap:["pob"]}).val()).to(equal, "This Is a POB Test");
+              });
+            });
+          }).appendTo("head");
+      });
+    </script>
+  </head>
+  <body>
+    <input id="simple" type="text" value="THAT is a test, over"/>
+    <div id="html">this is a test</div>
+    <input id="abbr" type="text" value="THIS is a P.O.B. test"/>
+    <input id="allcap" type="text" value="THIS is a POB test"/>
+  </body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>isEqual Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "isequal", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("bound events plugin", function () {
+              it("should return false if A & B are of different types", function () {
+                expect($.isEqual(1, "1")).to(equal, false);
+              });
+              it("should return true if A & B are a primitive data type and it's equivalent object type and have equal string values", function () {
+                expect($.isEqual(new String("test"), "test")).to(equal, true);
+              });
+              it("should return true if A & B are both null", function () {
+                expect($.isEqual(null, null)).to(equal, true);
+              });
+              it("should return true if A & B are of the same type, are not Objects, and have the same value", function () {
+                expect($.isEqual(1, 1)).to(equal, true);
+              });
+              it("should return false if one of A & B is an Array and the other is not", function () {
+                expect($.isEqual([], {})).to(equal, false);
+              });
+              it("should return false if both A & B are Arrays and have different lengths", function () {
+                expect($.isEqual([], [1])).to(equal, false);
+              });
+              it("should return true if both A & B are Arrays, have the same lengths, and every value is the same", function () {
+                expect($.isEqual([1], [1])).to(equal, true);
+              });
+              it("should return false if both A & B are Objects, and one has a key that the other does not", function () {
+                expect($.isEqual({a: 1}, {a: 1, b: 2})).to(equal, false);
+              });
+              it("should return false if both A & B are Objects, have the same set of keys, and the values for any key are different", function () {
+                expect($.isEqual({a: 1, b: 2}, {a: 1, b: 1})).to(equal, false);
+              });
+              it("should return false if both A & B are Objects, and have toString functions that return different values", function () {
+                var a = new Date(),b = new Date(a.getTime() + 10000);
+                expect($.isEqual(a, b)).to(equal, false);
+              });
+              it("should return true if both A & B are complex objects and are equal", function () {
+                expect($.isEqual({a: [1, 2]}, {a: [1, 2]})).to(equal, true);
+              })
+            });
+          }).appendTo("head");
+      });
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

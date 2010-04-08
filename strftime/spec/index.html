@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>strftime Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "strftime", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("bound events plugin", function () {
+              it("simple", function () {
+                $("#test1").strftime();
+                expect($("#test1").html()).to(equal, " 1/ 1 MIDNIGHT EST");
+              });
+
+              it("batch", function () {
+                $(".test2").strftime();
+                expect($(".test2:first").html()).to(equal, " 1/ 1 MIDNIGHT EST");
+              });
+
+              it("element specific format", function () {
+                $("#test3").strftime();
+                expect($("#test3").html()).to(equal, " 1/ 1");
+              });
+
+              it("inline format", function () {
+                $("#test4").strftime({ format: "%L/%e %I%p%N" });
+                expect($("#test4").html()).to(equal, " 1/ 1 MIDNIGHT");
+              });
+              it("all params", function () {
+                $("#test5").strftime({ format: "%A %B %e (%D) %r %z%n%t%w %u %j %a %U %V %W %L %b %F %C %g %G %R %T %c %x %X %s %P %Z", utc: true });                
+                expect($("#test5").html()).to(equal, "Friday January  1 (01/01/10) 12:57:23 AM UTC<br>&nbsp;&nbsp;5 6 001 Fri 52 52 52  1 Jan 2010-01-01 20 09 2009 12:57 12:57:23    1262350643000 am UTC");
+              });
+
+            });
+          }).appendTo("head");
+      });
+    </script>
+  </head>
+  <body>
+    <div id="test1">1/1/2010</div>
+    <div class="test2">1/1/2010</div>
+    <div class="test2">1/1/2010</div>
+    <div id="test3" data-date-format="%L/%e">1/1/2010</div>
+    <div id="test4">1/1/2010</div>
+    <div id="test5">Jan 1 2010 12:57:23 GMT</div>
+  </body>
+</html>
