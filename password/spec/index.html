@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Password Meter Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/caret.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "password", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("password meter plugin", function () {
+              describe("default rule for", function () {
+                it("number of characters", function () {
+                  expect($.ratePassword.defaults.rules[0]("abcdefgh").value).to(equal, 32);
+                });
+                it("number of uppercase characters", function () {
+                  expect($.ratePassword.defaults.rules[1]("abcdefgh").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[1]("ABCDEFGH").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[1]("abCDEFgh").value).to(equal, 8);
+                });
+                it("number of lowercase characters", function () {
+                  expect($.ratePassword.defaults.rules[2]("abcdefgh").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[2]("ABCDEFGH").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[2]("abCDEFgh").value).to(equal, 8);
+                });
+                it("number of numbers", function () {
+                  expect($.ratePassword.defaults.rules[3]("12345678").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[3]("ABCDEFGH").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[3]("ab123fgh").value).to(equal, 12);
+                });
+                it("number of symbols", function () {
+                  expect($.ratePassword.defaults.rules[4]("abcdefgh").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[4]("!@#$%^&*").value).to(equal, 48);
+                });
+                it("middle numbers or symbols", function () {
+                  expect($.ratePassword.defaults.rules[5]("abcdefgh").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[5]("ab#$%g*").value).to(equal, 6);
+                });
+                it("requirements", function () {
+                  expect($.ratePassword.defaults.rules[6]("abcdefgh").value).to(equal, 2);
+                  expect($.ratePassword.defaults.rules[6]("abCDEfgh").value).to(equal, 4);
+                  expect($.ratePassword.defaults.rules[6]("ab123fgh").value).to(equal, 4);
+                  expect($.ratePassword.defaults.rules[6]("abCD4fgh").value).to(equal, 6);
+                  expect($.ratePassword.defaults.rules[6]("abCD34%h").value).to(equal, 8);
+                  expect($.ratePassword.defaults.rules[6]("abcdefgh").multiplier).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[6]("abCD4fgh").multiplier).to(equal, 1);
+                });
+                it("letters only", function () {
+                  expect($.ratePassword.defaults.rules[7]("abcdefgh").value).to(equal, -8);
+                  expect($.ratePassword.defaults.rules[7]("abc1efgh").value).to(equal, 0);
+                });
+                it("numbers only", function () {
+                  expect($.ratePassword.defaults.rules[8]("12345678").value).to(equal, -8);
+                  expect($.ratePassword.defaults.rules[8]("123a5678").value).to(equal, 0);
+                });
+                it("repeat characters", function () {
+                  expect($.ratePassword.defaults.rules[9]("abcdefgh").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[9]("abcabcde").value).to(equal, -6);
+                });
+                it("consecutive uppercase letters", function () {
+                  expect($.ratePassword.defaults.rules[10]("abcdefgh").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[10]("ABCDEFGH").value).to(equal, -14);
+                });
+                it("consecutive lowercase letters", function () {
+                  expect($.ratePassword.defaults.rules[11]("ABCDEFGH").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[11]("abcdefgh").value).to(equal, -14);
+                });
+                it("consecutive numbers", function () {
+                  expect($.ratePassword.defaults.rules[12]("abcdefgh").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[12]("12345678").value).to(equal, -14);
+                });
+                it("consecutive symbols", function () {
+                  expect($.ratePassword.defaults.rules[13]("abcdefgh").value).to(equal, 0);
+                  expect($.ratePassword.defaults.rules[13]("!@#$%^&*").value).to(equal, -14);
+                });
+                it("sequential letters", function () {
+                  expect($.ratePassword.defaults.rules[14]("abcdefgh").value).to(equal, -18);
+                });
+                it("sequential numbers", function () {
+                  expect($.ratePassword.defaults.rules[15]("12345678").value).to(equal, -18);
+                });
+              });
+
+              describe("test passwords", function () {
+                it("8 character perfect password", function () {
+                  var rating = $.ratePassword("aB1!C2#d"); 
+                  expect(rating.score).to(equal, 92);
+                  expect(rating.percent).to(equal, 1);
+                });
+                it("9 character perfect password", function () {
+                  var rating = $.ratePassword("aB1!C@2#d");
+                  expect(rating.score).to(equal, 108);
+                  expect(rating.percent).to(equal, 1);
+                });
+                it("10 character perfect password", function () {
+                  var rating = $.ratePassword("a!B1@C#2$d");
+                  expect(rating.score).to(equal, 124);
+                  expect(rating.percent).to(equal, 1);
+                });
+                it("11 character perfect password", function () {
+                  var rating = $.ratePassword("a!B@1#C$2%d");
+                  expect(rating.score).to(equal, 140);
+                  expect(rating.percent).to(equal, 1);
+                });
+                it("12 character perfect password", function () {
+                  var rating = $.ratePassword("a!1B@2#C$3%d");
+                  expect(rating.score).to(equal, 154);
+                  expect(rating.percent).to(equal, 1);
+                });
+                it("13 character perfect password", function () {
+                  var rating = $.ratePassword("a!1B2@3#C$4%d");
+                  expect(rating.score).to(equal, 168);
+                  expect(rating.percent).to(equal, 1);
+                });
+                it("14 character perfect password", function () {
+                  var rating = $.ratePassword("a1!2B3@4#C$5%d");
+                  expect(rating.score).to(equal, 182);
+                  expect(rating.percent).to(equal, 1);
+                });
+              });
+
+              describe("$.fn version", function () {
+                it ("should return the rating of an input field", function () {
+                  expect($("#password").val("a1!2B3@4#C$5%d").ratePassword().score).to(equal, 182);
+                });
+              });
+
+              describe("rate as you type", function () {
+                it("should return the object", function () {
+                  expect($("#password").val("").ratePasswordAsYouType({
+                    update: function (rating) {
+                      $("#score").text(($(this).data("rate-password-value") || "") + " has " + rating.score + "pts == " + Math.round(rating.percent * 1000) / 10 + "% of max");
+                    }
+                  })).to(equal, $("#password"));
+                });
+              });
+            });
+          }).appendTo("head");
+      });
+    </script>
+  </head>
+  <body>
+    <div class="noremove">
+      <input type="text" id="password"/>
+      <span id="score"></span>
+    </div>
+  </body>
+</html>
