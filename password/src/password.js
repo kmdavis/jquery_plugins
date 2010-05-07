@@ -11,25 +11,36 @@
  * @copyright Copyright (c) 2010, Gilt Groupe
  */
 (function ($) {
-  $.ratePassword = function (password, options) {
-    var settings = $.extend({}, $.ratePassword.defaults, options), i,
-      score, rating = { scores: [], score: 0, percent: 0}, multiplier = 1;
-    if (password.length >= settings.minlength) {
-      for (i = 0; i < settings.rules.length; i += 1) {
-        score = settings.rules[i](password);
-        multiplier *= score.multiplier;
-        rating.scores.push(score);
-        rating.score += score.value;
+  var proxyCallback = function (rating, callback, perfect, settings) {
+    var expectedRatings = settings.rules.length, multiplier = 1;
+    return function (score) {
+      expectedRatings -= 1;
+      multiplier *= score.multiplier;
+      rating.scores.push(score);
+      rating.score += score.value;
+      if (0 === expectedRatings) {
+        rating.score *= multiplier;
+        rating.percent = rating.score === 0 ? 0 : rating.score / perfect;
+        callback(rating);
       }
     }
-    rating.score *= multiplier;
-    rating.percent = rating.score === 0 ? 0 : rating.score / settings.perfect(password.length);
-    return rating;
   };
 
-  $.fn.ratePassword = function (options) {
+  $.ratePassword = function (password, callback, options) {
+    var settings = $.extend({}, $.ratePassword.defaults, options), i,
+      rating = { scores: [], score: 0, percent: 0},
+      proxiedCallback = proxyCallback(rating, callback, settings.perfect(password.length), settings);
+    if (password.length >= settings.minlength) {
+      for (i = 0; i < settings.rules.length; i += 1) {
+        settings.rules[i](password, proxiedCallback);
+      }
+    }
+    return this;
+  };
+
+  $.fn.ratePassword = function (callback, options) {
     var settings = $.extend({}, $.ratePassword.defaults, options);
-    return $.ratePassword($(this).val(), options);
+    return $.ratePassword($(this).val(), callback, options);
   };
 
   $.fn.ratePasswordAsYouType = function (options) {
@@ -56,9 +67,9 @@
                     return; // can get delayed keyup events if you type fast
                   } else {
                     if (8 === ev.keyCode) { // backspace
-                      val = val.substr(0, caret) + val.substr(caret + 1); // TODO: verify this on in windows
+                      val = val.substr(0, caret) + val.substr(caret + 1); // TODO: verify this in IE
                     } else if (46 === ev.keyCode) { // delete
-                      val = val.substr(0, caret) + val.substr(caret + 2); // TODO: verify this on in windows
+                      val = val.substr(0, caret) + val.substr(caret + 2); // TODO: verify this in IE
                     }
                   }
                 }
@@ -79,18 +90,19 @@
               }
             }
             $(this).val(display || "");
+
+            if (caret < len) {
+              $(this).caret(caret);
+            }
           }
 
-          rating = $.ratePassword(val, options);
+          $.ratePassword(val, function (rating) {
+            if (settings.update) {
+              settings.update.call(this, rating);
+            }
+            $(this).trigger(settings.updateEvent, rating);
 
-          if (settings.update) {
-            settings.update.call(this, rating);
-          }
-          $(this).trigger(settings.updateEvent, rating);
-
-          if (caret < len) {
-            $(this).caret(caret);
-          }
+          }, options);
         });
         if (settings.obscurePasswordWithJS) {
           $(this)
@@ -117,62 +129,62 @@
       return len < 8 ? 0 : len < 11 ? len * 16 - 36 : (len - 1) * 14;
     },
     rules: [
-      function (a) {
-        return { key: "Number of characters", value: a.length * 4, multiplier: 1 };
+      function (a, callback) {
+        callback({ key: "Number of characters", value: a.length * 4, multiplier: 1 });
       },
-      function (a) {
+      function (a, callback) {
         var n = (a.match(/[A-Z]/g) || []).length;
-        return { key: "Number of uppercase characters", value: n === 0 || n === a.length ? 0 : (a.length - n) * 2, multiplier: 1 };
+        callback({ key: "Number of uppercase characters", value: n === 0 || n === a.length ? 0 : (a.length - n) * 2, multiplier: 1 });
       },
-      function (a) {
+      function (a, callback) {
         var n = (a.match(/[a-z]/g) || []).length;
-        return { key: "Number of lowercase characters", value: n === 0 || n === a.length ? 0 : (a.length - n) * 2, multiplier: 1 };
+        callback({ key: "Number of lowercase characters", value: n === 0 || n === a.length ? 0 : (a.length - n) * 2, multiplier: 1 });
       },
-      function (a) {
+      function (a, callback) {
         var n = (a.match(/\d/g) || []).length;
-        return { key: "Number of numbers", value: n === 0 || n === a.length ? 0 : n * 4, multiplier: 1 };
+        callback({ key: "Number of numbers", value: n === 0 || n === a.length ? 0 : n * 4, multiplier: 1 });
       },
-      function (a) {
-        return { key: "Number of symbols", value: (a.match(/[\W_]/g) || []).length * 6, multiplier: 1 };
+      function (a, callback) {
+        callback({ key: "Number of symbols", value: (a.match(/[\W_]/g) || []).length * 6, multiplier: 1 });
       },
-      function (a) {
-        return { key: "Middle numbers or symbols", value: (a.slice(1, a.length - 1).match(/[\d\W_]/g) || []).length * 2, multiplier: 1 };
+      function (a, callback) {
+        callback({ key: "Middle numbers or symbols", value: (a.slice(1, a.length - 1).match(/[\d\W_]/g) || []).length * 2, multiplier: 1 });
       },
-      function (a) {
+      function (a, callback) {
         var n = (a.match(/[a-z]/) || []).length + (a.match(/[A-Z]/) || []).length + (a.match(/\d/) || []).length + (a.match(/[\W_]/) || []).length; 
-        return { key: "Requirements", value: n * 2, multiplier: n < 3 ? 0 : 1 };
+        callback({ key: "Requirements", value: n * 2, multiplier: n < 3 ? 0 : 1 });
       },
-      function (a) {
-        return { key: "Letters only", value: -(a.match(/^[a-z]+$/i) || [""])[0].length, multiplier: 1 };
+      function (a, callback) {
+        callback({ key: "Letters only", value: -(a.match(/^[a-z]+$/i) || [""])[0].length, multiplier: 1 });
       },
-      function (a) {
-        return { key: "Numbers only", value: -(a.match(/^\d+$/i) || [""])[0].length, multiplier: 1 };
+      function (a, callback) {
+        callback({ key: "Numbers only", value: -(a.match(/^\d+$/i) || [""])[0].length, multiplier: 1 });
       },
-      function (a) {
+      function (a, callback) {
         var n = (a.match(/([a-z])(?=[^\1]*\1)/gi) || []).length;
-        return { key: "Repeat characters (case insensitive)", value: -(n * (n - 1)), multiplier: 1 };
+        callback({ key: "Repeat characters (case insensitive)", value: -(n * (n - 1)), multiplier: 1 });
       },
-      function (a) {
+      function (a, callback) {
         var n = a.match(/[A-Z][A-Z]+/g) || ["A"];
         n = n.join("").length - n.length;
-        return { key: "Consecutive uppercase letters", value: n * -2, multiplier: 1 };
+        callback({ key: "Consecutive uppercase letters", value: n * -2, multiplier: 1 });
       },
-      function (a) {
+      function (a, callback) {
         var n = a.match(/[a-z][a-z]+/g) || ["a"];
         n = n.join("").length - n.length;
-        return { key: "Consecutive lowercase letters", value: n * -2, multiplier: 1 };
+        callback({ key: "Consecutive lowercase letters", value: n * -2, multiplier: 1 });
       },
-      function (a) {
+      function (a, callback) {
         var n = a.match(/\d\d+/g) || ["1"];
         n = n.join("").length - n.length;
-        return { key: "Consecutive numbers", value: n * -2, multiplier: 1 };
+        callback({ key: "Consecutive numbers", value: n * -2, multiplier: 1 });
       },
-      function (a) {
+      function (a, callback) {
         var n = a.match(/[\W_][\W_]+/g) || ["1"];
         n = n.join("").length - n.length;
-        return { key: "Consecutive symbols", value: n * -2, multiplier: 1 };
+        callback({ key: "Consecutive symbols", value: n * -2, multiplier: 1 });
       },
-      function (a) {
+      function (a, callback) {
         var potentials = a.match(/[a-z][a-z][a-z]+|[A-Z][A-Z][A-Z]+/g), val = 0, i, j, last, v;
         if (potentials) {
           for (i = 0; i < potentials.length; i += 1) {
@@ -186,9 +198,9 @@
             }
           }
         }
-        return { key: "Sequential letters (3+)", value: val * -3, multiplier: 1 };
+        callback({ key: "Sequential letters (3+)", value: val * -3, multiplier: 1 });
       },
-      function (a) {
+      function (a, callback) {
         var potentials = a.match(/\d\d\d+/g), val = 0, i, j, last, v;
         if (potentials) {
           for (i = 0; i < potentials.length; i += 1) {
@@ -202,7 +214,7 @@
             }
           }
         }
-        return { key: "Sequential numbers (3+)", value: val * -3, multiplier: 1 };
+        callback({ key: "Sequential numbers (3+)", value: val * -3, multiplier: 1 });
       }
     ]
   };

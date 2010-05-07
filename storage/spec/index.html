@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Storage Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "storage", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        $("<script type='text/javascript' src='" + src + "'/>")
+          .load(function () {
+            describe("storage plugin", function () {
+              before(function () {
+
+              });
+
+              describe("Utilities", function () {
+                describe("sizeof", function () {
+
+                });
+                describe("stack", function () {
+
+                });
+                describe("dropFromStacks", function () {
+
+                });
+                describe("toJSON", function () {
+
+                });
+                describe("fromJSOn", function () {
+
+                });
+                describe("worker", function () {
+
+                });
+                describe("setStacks", function () {
+
+                });
+              });
+
+              describe("Factories", function () {
+
+              });
+
+              var standard_tests = function (type, ns) {
+                describe(type, function () {
+                  describe("set", function () {
+
+                  });
+                  describe("get", function () {
+
+                  });
+                  describe("clear", function () {
+
+                  });
+                  describe("list", function () {
+
+                  });
+                });
+              };
+
+              $([["HTTP Cookies", $.storage.httpCookies],
+                 ["Flash Cookies", $.storage.flashCookies],
+                 ["HTML 5 Dom Storage", $.storage.domPStorage],
+                 ["HTML 5 Local Storage", $.storage.domSStorage],
+                 ["User Data", $.storage.userData],
+                 ["Window Name", $.storage.windowName],
+                 ["HTML 5 Database", $.storage.openDatabase],
+                 ["Gears Database", $.storage.gears]]).each(function () {
+                standard_tests(this[0], this[1]);
+              });
+            });
+          }).appendTo("head");
+      });
+    </script>
+  </head>
+  <body>
+
+  </body>
+</html>
