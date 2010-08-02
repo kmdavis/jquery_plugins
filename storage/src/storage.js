@@ -182,7 +182,7 @@
     $.storage = {
         set: factories.main("set"),
         get: factories.main("get"),
-        clear: factories.main("remove"),
+        clear: factories.main("clear"),
         list: factories.main("list")
     };
 } // Global
@@ -297,7 +297,7 @@
             callback($.storage.utilities.pendingResult[name]);
         });
     };
-    $.storage.httpCookies.remove = function(name, opts, callback) {
+    $.storage.httpCookies.clear = function(name, opts, callback) {
         $.storage.httpCookies.enabled(function(enabled) {
             if (enabled) {
                 $.storage.httpCookies.has(name, opts, function(found) {
@@ -475,7 +475,7 @@
             callback($.storage.utilities.pendingResult[name]);
         });
     };
-    $.storage.flashCookies.remove = function(name, opts, callback) {
+    $.storage.flashCookies.clear = function(name, opts, callback) {
         $.storage.flashCookies.enabled(function(enabled) {
             if (enabled) {
                 if ($.storage.settings.debug) { console.debug("Storage: Removing %s from Flash Cookie", name); }
@@ -604,15 +604,15 @@
                 opts = $.extend({}, $.storage.domPStorage.defaults, opts);
                 if ($.storage.settings.debug) { console.debug("Storage: Attempting to retrieve %s from Persistent Dom Storage", name); }
                 if (opts.domain) {
-                    $.storage.utilities.pendingResult[name] = $.storage.utilities.fromJSON(window.globalStorage[opts.domain].getItem(name).value);
+                    $.storage.utilities.pendingResult[name] = $.storage.utilities.fromJSON(window.globalStorage[opts.domain].getItem(name));
                 } else {
-                    $.storage.utilities.pendingResult[name] = $.storage.utilities.fromJSON(window.localStorage.getItem(name).value);
+                    $.storage.utilities.pendingResult[name] = $.storage.utilities.fromJSON(window.localStorage.getItem(name));
                 }
             }
             callback($.storage.utilities.pendingResult[name]);
         });
     };
-    $.storage.domPStorage.remove = function(name, opts, callback) {
+    $.storage.domPStorage.clear = function(name, opts, callback) {
         $.storage.domPStorage.enabled(function(enabled) {
             if (enabled) {
                 $.storage.domPStorage.has(name, opts, function(found) {
@@ -749,12 +749,12 @@
         $.storage.domSStorage.enabled(function(enabled) {
             if (enabled) {
                 if ($.storage.settings.debug) { console.debug("Storage: Attempting to retrieve %s from Session Dom Storage", name); }
-                $.storage.utilities.pendingResult[name] = $.storage.utilities.fromJSON(window.sessionStorage.getItem(name).value);
+                $.storage.utilities.pendingResult[name] = $.storage.utilities.fromJSON(window.sessionStorage.getItem(name));
             }
             callback($.storage.utilities.pendingResult[name]);
         });
     };
-    $.storage.domSStorage.remove = function(name, opts, callback) {
+    $.storage.domSStorage.clear = function(name, opts, callback) {
         $.storage.domSStorage.enabled(function(enabled) {
             if (enabled) {
                 $.storage.domSStorage.has(name, opts, function(found) {
@@ -875,7 +875,7 @@
             callback($.storage.utilities.pendingResult[name]);
         });
     };
-    $.storage.userData.remove = function(name, opts, callback) {
+    $.storage.userData.clear = function(name, opts, callback) {
         $.storage.userData.enabled(function(enabled) {
             if (enabled) {
                 $.storage.userData.has(name, opts, function(found) {
@@ -967,7 +967,7 @@
             callback($.storage.utilities.pendingResult[name]);
         });
     };
-    $.storage.windowName.remove = function(name, opts, callback) {
+    $.storage.windowName.clear = function(name, opts, callback) {
         $.storage.windowName.enabled(function(enabled) {
             if (enabled) {
                 $.storage.windowName.has(name, opts, function(found) {
@@ -1079,7 +1079,7 @@
             }
         });
     };
-    $.storage.openDatabase.remove = function(name, opts, callback) {
+    $.storage.openDatabase.clear = function(name, opts, callback) {
         $.storage.openDatabase.enabled(function(enabled) {
             if (enabled) {
                 $.storage.openDatabase.has(name, opts, function(found) {
