@@ -30,7 +30,7 @@
                 describe("toJSON", function () {
 
                 });
-                describe("fromJSOn", function () {
+                describe("fromJSON", function () {
 
                 });
                 describe("worker", function () {
@@ -46,22 +46,43 @@
               });
 
               var standard_tests = function (type, ns) {
-                describe(type, function () {
-                  describe("set", function () {
-
-                  });
-                  describe("get", function () {
-
-                  });
-                  describe("clear", function () {
-
-                  });
-                  describe("list", function () {
-
-                  });
+                ns.enabled(function (enabled) {
+                  if (enabled) {
+                    describe(type, function () {
+                      beforeEach(function () {
+                        // normally this step is handled internally
+                        // but since we're calling each engine manually...
+                        $.storage.utilities.pendingResult = { test: null };
+                      });
+                      it("set", function () {
+                        ns.set("test", "pass", null, function () {
+                          expect(true).to(equal, true);
+                        });
+                      });
+                      it("get", function () {
+                        ns.get("test", null, function (val) {
+                          expect(val).to(equal, "pass");
+                        });
+                      });
+                      it("list", function () {
+                        $.storage.utilities.pendingResult = [];
+                        ns.list(null, function (keys) {
+                          expect(keys).to(equal, ["test"]);
+                        });
+                      });
+                      it("clear", function () {
+                        ns.clear("test", null, function () {
+                          $.storage.utilities.pendingResult = [];
+                          ns.list(null, function (keys) {
+                            expect(keys).to(equal, []);
+                          })
+                        });
+                      });
+                    });
+                  }
                 });
               };
-
+              
               $([["HTTP Cookies", $.storage.httpCookies],
                  ["Flash Cookies", $.storage.flashCookies],
                  ["HTML 5 Dom Storage", $.storage.domPStorage],
