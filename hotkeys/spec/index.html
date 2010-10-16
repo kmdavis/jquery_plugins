@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Hotkeys Plugin Specs</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/spec_runner.js"></script>
+    <script type="text/javascript" src="../src/hotkeys.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        var filename = "hotkeys", version = "1.0",
+          src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
+            "../release/jquery.gilt." + filename + "." + version + ".min.js" :
+            "../src/" + filename + ".js";
+        //console.log(src);
+        //$.getScript(src, function () {
+        /*$("<script type='text/javascript' src='" + src + "'/>") // there was a reason I did it this way, but I can't remember why
+          .load(function () {*/
+            //console.log("HI");
+            $(document).hotkey("ctrl+n", function () {
+              alert("ctrl+n");
+            }).hotkey("up up down down left right left right b a", function () {
+              alert("konami code");
+            });
+            $("#test").hotkey("ctrl+n", function () {
+              alert("ctrl+n from input");
+            });
+          /*}).appendTo("head");*/
+        //});
+      });
+    </script>
+  </head>
+  <body>
+    <input type="text" id="test"/>
+  </body>
+</html>
