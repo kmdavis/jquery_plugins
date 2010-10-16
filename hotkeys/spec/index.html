@@ -11,10 +11,8 @@
           src = /[\?\&]prod(\&|$)/.test(document.location.search) ?
             "../release/jquery.gilt." + filename + "." + version + ".min.js" :
             "../src/" + filename + ".js";
-        //console.log(src);
-        //$.getScript(src, function () {
-        /*$("<script type='text/javascript' src='" + src + "'/>") // there was a reason I did it this way, but I can't remember why
-          .load(function () {*/
+        $("<script type='text/javascript' src='" + src + "'/>") // there was a reason I did it this way, but I can't remember why
+          .load(function () {
             //console.log("HI");
             $(document).hotkey("ctrl+n", function () {
               alert("ctrl+n");
@@ -24,8 +22,7 @@
             $("#test").hotkey("ctrl+n", function () {
               alert("ctrl+n from input");
             });
-          /*}).appendTo("head");*/
-        //});
+          }).appendTo("head");
       });
     </script>
   </head>
