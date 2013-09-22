@@ -30,7 +30,7 @@
         return a.length - b.length;
       };
       if (el.attr("class")) {
-        classes = el.attr("class").split(" ");
+        classes = $.trim(el.attr("class")).split(" ");
         for (i = 0; i < classes.length; i += 1) {
           if (1 === $(tagName + "." + classes[i]).length) {
             simple_candidates.push(tagName + "." + classes[i]);
